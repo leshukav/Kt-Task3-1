@@ -1,35 +1,40 @@
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.Message
+import java.io.FileInputStream
+
+
 fun main() {
-    // Задача №1 - «Только что»
-    val time = 16000
-    println(agoToText(time))
-}
+    val options = FirebaseOptions.builder()
+        .setCredentials(GoogleCredentials.fromStream(FileInputStream("fcm.json")))
+        .build()
 
-fun agoToText(time: Int): String {
-    return when (time) {
-        in 0..60 -> "был(а) только что"
-        in 61..3600 -> "был(а) ${time / 60} ${minuteAgo(time)}"
-        in 3601..86400 ->
-            "был(а) ${time / 3600} ${hourAgo(time)} и ${(time - time / 3600 * 3600) / 60}  ${
-                minuteAgo((time - time / 3600 * 3600) / 60)
-            }"
-        in 86_401..172_800 -> "был(а) сегодня"
-        in 172_801..259_200 -> "был(а) вчера"
-        else -> "был(а) давно"
-    }
-}
+    FirebaseApp.initializeApp(options)
+    val token = "cQIfGOX0T3K2iYccumEKUS:APA91bF-TgRs3_7PsPY5pndPs-7jfOJiiKSiD3GHi-jtch_rVJtRC3XEeVHyUfYUcm48Ooe6hsmGtp-bknN4EYP0ASURMDxpwtoMtlbzDWgVrQycdC1na0b9_Plt1J9XF1VF2rmV_N_H"
+        //"cTKuU0y-Taujyc3zeJU93H:APA91bEffNzPfC8Jb3AWjUWjm8U-viD6N4ErvpR6kStHa3rU2s8IxqOXfb9iQUiv_N6rGTtfmW6nH0ourU7uksJg3WM1A9kWGxHdWXla3q7Byg3NnGFSSGDutPuX56wAQGTuxbr4nNhB"
+    val message = Message.builder()
+        .putData("action", "NEWPOST")
+        .putData("contents", """{
+          "id": 1,
+          "author": " ",
+          "content": " ",
+          "publish": " ",
+          "like": 0,
+          "share": 10,
+          "viewEye": 1,
+          "likeByMe": false,
+          "video": " "
+        }""")
+//        .putData("content", """{
+//          "userId": 1,
+//          "userName": "Vasiliy",
+//          "postId": 2,
+//          "postAuthor": "Netology"
+//        }""")
+        .setToken(token)
+        .build()
 
-fun hourAgo(time: Int): String {
-    return when (time / 3600) {
-        1, 21 -> "час"
-        2, 3, 4, 22, 23, 24 -> "часа"
-        else -> "часов"
-    }
-}
-
-fun minuteAgo(time: Int): String {
-    return when (time / 60) {
-        2, 3, 4, 22, 23, 24, 32, 33, 34, 42, 43, 44, 52, 53, 54 -> " минуты назад"
-        21, 31, 41, 51 -> "минуту назад"
-        else -> "минут назад"
-    }
+    FirebaseMessaging.getInstance().send(message)
 }
